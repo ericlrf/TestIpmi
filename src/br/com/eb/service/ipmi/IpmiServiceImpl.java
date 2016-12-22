@@ -1,58 +1,78 @@
 package br.com.eb.service.ipmi;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.veraxsystems.vxipmi.api.async.ConnectionHandle;
 import com.veraxsystems.vxipmi.api.sync.IpmiConnector;
+import com.veraxsystems.vxipmi.coding.commands.IpmiCommandCoder;
 import com.veraxsystems.vxipmi.coding.commands.IpmiVersion;
 import com.veraxsystems.vxipmi.coding.commands.PrivilegeLevel;
+import com.veraxsystems.vxipmi.coding.commands.ResponseData;
 import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatus;
 import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatusResponseData;
 import com.veraxsystems.vxipmi.coding.protocol.AuthenticationType;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 
+/**
+ * Classe responsável por implementar operações em IPMI.
+ * @author Eric Rodrigues (eric@usto.re)
+ * */
 public class IpmiServiceImpl implements IpmiService {
 
 	private IpmiConnector connector;
 	private ConnectionHandle handle;
-	private CipherSuite cs;
-	
+	private List<CipherSuite> cipherSuites;
+
 	@Override
-	public void openConnection(int port, String address, PrivilegeLevel privilegeLevel, String username, String password, byte[] bmcKey) throws Exception {
+	public void createConnection(int port, String address) throws Exception {
 		connector = new IpmiConnector(port);
 		handle = connector.createConnection(InetAddress.getByName(address));
-		
-		List<CipherSuite> cipherSuites = connector.getAvailableCipherSuites(handle);//size=15
-		cs = cipherSuites.get(3); //3
-		
-		connector.getChannelAuthenticationCapabilities(handle, cs, privilegeLevel);
+	}
+
+	@Override
+	public List<CipherSuite> encryptConnection() throws Exception {
+		cipherSuites = connector.getAvailableCipherSuites(handle);// size=15
+		return cipherSuites;
+	}
+
+	@Override
+	public void openConnection(CipherSuite cs, PrivilegeLevel pl, String username, String password, byte[] bmcKey)
+			throws Exception {
+		connector.getChannelAuthenticationCapabilities(handle, cs, pl);
 		connector.openSession(handle, username, password, bmcKey);
 	}
 
-
 	@Override
-	public void sendMessageChassis() throws Exception {
-		GetChassisStatusResponseData rd = (GetChassisStatusResponseData) connector.sendMessage(handle, new GetChassisStatus(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus));
-		System.out.println("Servidor remoto está ligado? "+rd.isPowerOn());
+	public ResponseData sendMessage(IpmiCommandCoder commandCoder) throws Exception {
+		ResponseData rd = connector.sendMessage(handle, commandCoder);
+		return rd;
+
 	}
 
-	@Override
-	public void sendMessageSensors() throws Exception{
-		
-	}
-	
 	@Override
 	public void closeConnection() throws Exception {
 		connector.closeSession(handle);
+	}
+
+	@Override
+	public void releaseConnection() throws Exception {
 		connector.tearDown();
 	}
 	
-	public static void main(String[] args) throws Exception {
-		IpmiServiceImpl impl = new IpmiServiceImpl();
-		impl.openConnection(6000, "10.0.1.245", PrivilegeLevel.Administrator, "ADMIN", "ADMIN", null);
-		impl.sendMessageChassis();
-		impl.closeConnection();
+	/**
+	 * Recebe status do chassis de host remoto
+	 * */
+	public void chassisStatus(CipherSuite cs) throws Exception{
+		GetChassisStatus commandCoder = new GetChassisStatus(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus);
+		GetChassisStatusResponseData rd = (GetChassisStatusResponseData) sendMessage(commandCoder);
+		List<IpmiData> list = new ArrayList<>();
+		IpmiData data;
+		data = new IpmiData("Current Power State", String.valueOf(rd.getCurrentPowerState()));
+		list.add(data);
+		data = new IpmiData("", String.valueOf());
+		list.add(data);
 	}
 
 }
