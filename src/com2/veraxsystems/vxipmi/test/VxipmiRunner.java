@@ -11,7 +11,9 @@
  */
 package com2.veraxsystems.vxipmi.test;
 
+import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.veraxsystems.vxipmi.api.async.ConnectionHandle;
@@ -73,7 +75,12 @@ public class VxipmiRunner {
 		System.out.println("Received answer");
 		System.out.println("System power state is "
 				+ (rd.isPowerOn() ? "up" : "down"));
-
+		Method[] objects =	GetChassisStatusResponseData.class.getDeclaredMethods();
+		for (int i = 0; i < objects.length; i++) {
+			System.out.println(objects[i]);
+		}
+		
+		
 		// Close the session
 		connector.closeSession(handle);
 		System.out.println("Session closed");

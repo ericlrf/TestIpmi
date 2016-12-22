@@ -17,8 +17,10 @@ import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 
 /**
  * Classe responsável por implementar operações em IPMI.
+ * 
  * @author Eric Rodrigues (eric@usto.re)
- * */
+ * @since 22-Dezembro-2016
+ */
 public class IpmiServiceImpl implements IpmiService {
 
 	private IpmiConnector connector;
@@ -60,19 +62,71 @@ public class IpmiServiceImpl implements IpmiService {
 	public void releaseConnection() throws Exception {
 		connector.tearDown();
 	}
-	
+
 	/**
-	 * Recebe status do chassis de host remoto
-	 * */
-	public void chassisStatus(CipherSuite cs) throws Exception{
+	 * Recebe informações do chassis do host remoto
+	 */
+	public List<IpmiData> chassisStatus(CipherSuite cs) throws Exception {
 		GetChassisStatus commandCoder = new GetChassisStatus(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus);
 		GetChassisStatusResponseData rd = (GetChassisStatusResponseData) sendMessage(commandCoder);
 		List<IpmiData> list = new ArrayList<>();
 		IpmiData data;
 		data = new IpmiData("Current Power State", String.valueOf(rd.getCurrentPowerState()));
 		list.add(data);
-		data = new IpmiData("", String.valueOf());
+		data = new IpmiData("is Power Control Fault", String.valueOf(rd.isPowerControlFault()));
 		list.add(data);
+		data = new IpmiData("is Power Fault", String.valueOf(rd.isPowerFault()));
+		list.add(data);
+		data = new IpmiData("is Inter lock", String.valueOf(rd.isInterlock()));
+		list.add(data);
+		data = new IpmiData("is Power Over load", String.valueOf(rd.isPowerOverload()));
+		list.add(data);
+		data = new IpmiData("is Power On", String.valueOf(rd.isPowerOn()));
+		list.add(data);
+		data = new IpmiData("Last Power Event", String.valueOf(rd.getLastPowerEvent()));
+		list.add(data);
+		data = new IpmiData("was Ipmi Power On", String.valueOf(rd.wasIpmiPowerOn()));
+		list.add(data);
+		data = new IpmiData("was Power Fault", String.valueOf(rd.wasPowerFault()));
+		list.add(data);
+		data = new IpmiData("was Inter lock", String.valueOf(rd.wasInterlock()));
+		list.add(data);
+		data = new IpmiData("was Power Over load", String.valueOf(rd.wasPowerOverload()));
+		list.add(data);
+		data = new IpmiData("ac Failed", String.valueOf(rd.acFailed()));
+		list.add(data);
+		data = new IpmiData("Misc Chassis State", String.valueOf(rd.getMiscChassisState()));
+		list.add(data);
+		data = new IpmiData("is Chassis Identify Command Supported",
+				String.valueOf(rd.isChassisIdentifyCommandSupported()));
+		list.add(data);
+		data = new IpmiData("cooling Fault Detected", String.valueOf(rd.coolingFaultDetected()));
+		list.add(data);
+		data = new IpmiData("drive Fault Detected", String.valueOf(rd.driveFaultDetected()));
+		list.add(data);
+		data = new IpmiData("Front Panel Lockout Active", String.valueOf(rd.isFrontPanelLockoutActive()));
+		list.add(data);
+		data = new IpmiData("Chassis Intrusion Active", String.valueOf(rd.isChassisIntrusionActive()));
+		list.add(data);
+		data = new IpmiData("Front Panel Button Capabilities", String.valueOf(rd.getFrontPanelButtonCapabilities()));
+		list.add(data);
+
+		return list;
+	}
+
+	/**
+	 * Recebe informações dos sensores do host remoto
+	 */
+	public List<IpmiData> sensorStatus(CipherSuite cs) throws Exception {
+
+		
+		
+		
+		List<IpmiData> list = new ArrayList<>();
+		IpmiData data;
+		data = new IpmiData("", String.valueOf(0));
+		list.add(data);
+		return list;
 	}
 
 }

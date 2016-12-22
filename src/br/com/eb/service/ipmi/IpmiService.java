@@ -9,6 +9,7 @@ import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 /**
  * Interface responsável por conectar, autenticar, enviar e receber dados via
  * IPMI de hosts remotos.
+ * 
  * @author Eric Rodrigues (eric@usto.re)
  * @since 22-Dezembro-2016
  */
