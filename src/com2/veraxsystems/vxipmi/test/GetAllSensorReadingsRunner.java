@@ -65,6 +65,8 @@ public class GetAllSensorReadingsRunner {
     public static void main(String[] args) {
         GetAllSensorReadingsRunner runner = new GetAllSensorReadingsRunner();
         try {
+        	System.out.println("Initial default timeout: "+PropertiesManager.getInstance().getProperty("timeout"));
+        	
             // Change default timeout value
             PropertiesManager.getInstance().setProperty("timeout", "2500");
             runner.doRun();

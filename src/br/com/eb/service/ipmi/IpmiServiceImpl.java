@@ -13,6 +13,7 @@ import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatus;
 import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatusResponseData;
 import com.veraxsystems.vxipmi.coding.protocol.AuthenticationType;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
+import com.veraxsystems.vxipmi.common.PropertiesManager;
 
 /**
  * Classe responsável por implementar operações em IPMI.
@@ -22,6 +23,8 @@ import com.veraxsystems.vxipmi.coding.security.CipherSuite;
  */
 public class IpmiServiceImpl implements IpmiService {
 
+	private static final int MAX_REPO_RECORD_ID = 65535;
+	private static final String INITIAL_DEFAULT_TIMEOUT = PropertiesManager.getInstance().getProperty("timeout");
 	private IpmiConnector connector;
 	private ConnectionHandle handle;
 	private List<CipherSuite> cipherSuites;
@@ -35,8 +38,16 @@ public class IpmiServiceImpl implements IpmiService {
 
 	@Override
 	public void encryptConnection() throws Exception {
-		cipherSuites = connector.getAvailableCipherSuites(handle);// size=15
-		cs = cipherSuites.get(3);//.get(14)
+		cipherSuites = connector.getAvailableCipherSuites(handle);// maxSize=15
+		if (cipherSuites.size() > 3) {
+			cs = cipherSuites.get(3);
+		} else if (cipherSuites.size() > 2) {
+			cs = cipherSuites.get(2);
+		} else if (cipherSuites.size() > 1) {
+			cs = cipherSuites.get(1);
+		} else {
+			cs = cipherSuites.get(0);
+		}
 	}
 
 	@Override
@@ -117,7 +128,10 @@ public class IpmiServiceImpl implements IpmiService {
 	 * Recebe informações dos sensores do host remoto
 	 */
 	public List<IpmiData> sensorStatus() throws Exception {
-
+		
+		
+        
+        
 		List<IpmiData> list = new ArrayList<>();
 		IpmiData data;
 		data = new IpmiData("", String.valueOf(0));
