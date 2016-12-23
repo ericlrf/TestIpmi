@@ -23,13 +23,12 @@ public interface IpmiService {
 	 * Provê lista de suítes de algoritmos (autenticação, confidencialidade e
 	 * integridade) para a conexão
 	 */
-	public List<CipherSuite> encryptConnection() throws Exception;
+	public void encryptConnection() throws Exception;
 
 	/**
 	 * Autenticar canal de comunicação e inicia conexão com host remoto
 	 */
-	public void openConnection(CipherSuite cs, PrivilegeLevel pl, String username, String password, byte[] bmcKey)
-			throws Exception;
+	public void openConnection(String username, String password, byte[] bmcKey) throws Exception;
 
 	/**
 	 * Envia comando IPMI e recebe o resultado

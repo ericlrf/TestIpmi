@@ -3,7 +3,6 @@ package br.com.eb.service.ipmi;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.veraxsystems.vxipmi.api.async.ConnectionHandle;
 import com.veraxsystems.vxipmi.api.sync.IpmiConnector;
 import com.veraxsystems.vxipmi.coding.commands.IpmiCommandCoder;
@@ -26,6 +25,7 @@ public class IpmiServiceImpl implements IpmiService {
 	private IpmiConnector connector;
 	private ConnectionHandle handle;
 	private List<CipherSuite> cipherSuites;
+	private CipherSuite cs;
 
 	@Override
 	public void createConnection(int port, String address) throws Exception {
@@ -34,15 +34,14 @@ public class IpmiServiceImpl implements IpmiService {
 	}
 
 	@Override
-	public List<CipherSuite> encryptConnection() throws Exception {
+	public void encryptConnection() throws Exception {
 		cipherSuites = connector.getAvailableCipherSuites(handle);// size=15
-		return cipherSuites;
+		cs = cipherSuites.get(3);//.get(14)
 	}
 
 	@Override
-	public void openConnection(CipherSuite cs, PrivilegeLevel pl, String username, String password, byte[] bmcKey)
-			throws Exception {
-		connector.getChannelAuthenticationCapabilities(handle, cs, pl);
+	public void openConnection(String username, String password, byte[] bmcKey) throws Exception {
+		connector.getChannelAuthenticationCapabilities(handle, cs, PrivilegeLevel.Administrator);
 		connector.openSession(handle, username, password, bmcKey);
 	}
 
@@ -66,7 +65,7 @@ public class IpmiServiceImpl implements IpmiService {
 	/**
 	 * Recebe informações do chassis do host remoto
 	 */
-	public List<IpmiData> chassisStatus(CipherSuite cs) throws Exception {
+	public List<IpmiData> chassisStatus() throws Exception {
 		GetChassisStatus commandCoder = new GetChassisStatus(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus);
 		GetChassisStatusResponseData rd = (GetChassisStatusResponseData) sendMessage(commandCoder);
 		List<IpmiData> list = new ArrayList<>();
@@ -117,11 +116,8 @@ public class IpmiServiceImpl implements IpmiService {
 	/**
 	 * Recebe informações dos sensores do host remoto
 	 */
-	public List<IpmiData> sensorStatus(CipherSuite cs) throws Exception {
+	public List<IpmiData> sensorStatus() throws Exception {
 
-		
-		
-		
 		List<IpmiData> list = new ArrayList<>();
 		IpmiData data;
 		data = new IpmiData("", String.valueOf(0));
