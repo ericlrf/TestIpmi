@@ -11,9 +11,22 @@ import com.veraxsystems.vxipmi.coding.commands.PrivilegeLevel;
 import com.veraxsystems.vxipmi.coding.commands.ResponseData;
 import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatus;
 import com.veraxsystems.vxipmi.coding.commands.chassis.GetChassisStatusResponseData;
+import com.veraxsystems.vxipmi.coding.commands.sdr.GetSdr;
+import com.veraxsystems.vxipmi.coding.commands.sdr.GetSdrResponseData;
+import com.veraxsystems.vxipmi.coding.commands.sdr.GetSensorReading;
+import com.veraxsystems.vxipmi.coding.commands.sdr.GetSensorReadingResponseData;
+import com.veraxsystems.vxipmi.coding.commands.sdr.ReserveSdrRepository;
+import com.veraxsystems.vxipmi.coding.commands.sdr.ReserveSdrRepositoryResponseData;
+import com.veraxsystems.vxipmi.coding.commands.sdr.record.CompactSensorRecord;
+import com.veraxsystems.vxipmi.coding.commands.sdr.record.FullSensorRecord;
+import com.veraxsystems.vxipmi.coding.commands.sdr.record.ReadingType;
+import com.veraxsystems.vxipmi.coding.commands.sdr.record.SensorRecord;
+import com.veraxsystems.vxipmi.coding.payload.CompletionCode;
+import com.veraxsystems.vxipmi.coding.payload.lan.IPMIException;
 import com.veraxsystems.vxipmi.coding.protocol.AuthenticationType;
 import com.veraxsystems.vxipmi.coding.security.CipherSuite;
 import com.veraxsystems.vxipmi.common.PropertiesManager;
+import com.veraxsystems.vxipmi.common.TypeConverter;
 
 /**
  * Classe responsável por implementar operações em IPMI.
@@ -23,12 +36,16 @@ import com.veraxsystems.vxipmi.common.PropertiesManager;
  */
 public class IpmiServiceImpl implements IpmiService {
 
-	private static final int MAX_REPO_RECORD_ID = 65535;
 	private static final String INITIAL_DEFAULT_TIMEOUT = PropertiesManager.getInstance().getProperty("timeout");
+	private static final int MAX_REPO_RECORD_ID = 65535;
+	private static final int INITIAL_CHUNK_SIZE = 8;
+	private static final int CHUNK_SIZE = 16;
+	private static final int HEADER_SIZE = 5;
 	private IpmiConnector connector;
 	private ConnectionHandle handle;
 	private List<CipherSuite> cipherSuites;
 	private CipherSuite cs;
+	private int nextRecId;
 
 	@Override
 	public void createConnection(int port, String address) throws Exception {
@@ -128,15 +145,146 @@ public class IpmiServiceImpl implements IpmiService {
 	 * Recebe informações dos sensores do host remoto
 	 */
 	public List<IpmiData> sensorStatus() throws Exception {
-		
-		
-        
-        
 		List<IpmiData> list = new ArrayList<>();
-		IpmiData data;
-		data = new IpmiData("", String.valueOf(0));
-		list.add(data);
+		IpmiData data = null;
+
+		nextRecId = 0;
+		int reservationId = 0;
+		int lastReservationId = -1;
+		connector.setTimeout(handle, 2750);
+		while (nextRecId < MAX_REPO_RECORD_ID) {
+			
+			SensorRecord record = null;
+			try {
+				record = getSensorData(connector, handle, reservationId);
+				int recordReadingId = -1;
+				if (record instanceof FullSensorRecord) {
+					FullSensorRecord fsr = (FullSensorRecord) record;
+					recordReadingId = TypeConverter.byteToInt(fsr.getSensorNumber());
+					data = new IpmiData(fsr.getName(), null);
+//					data.setNome(fsr.getName());
+				} else if (record instanceof CompactSensorRecord) {
+					CompactSensorRecord csr = (CompactSensorRecord) record;
+					recordReadingId = TypeConverter.byteToInt(csr.getSensorNumber());
+					data = new IpmiData(csr.getName(), null);
+//					data.setNome(csr.getName());
+				}
+				GetSensorReadingResponseData data2 = null;
+				try {
+					if (recordReadingId >= 0) {
+						GetSensorReading commandCoder = new GetSensorReading(IpmiVersion.V20, cs,
+								AuthenticationType.RMCPPlus, recordReadingId);
+						data2 = (GetSensorReadingResponseData) sendMessage(commandCoder);
+						if (record instanceof FullSensorRecord) {
+							FullSensorRecord rec = (FullSensorRecord) record;
+							data.setValor(data2.getSensorReading(rec) + " " + rec.getSensorBaseUnit().toString());
+							list.add(data);
+						} else if (record instanceof CompactSensorRecord) {
+							CompactSensorRecord rec = (CompactSensorRecord) record;
+							List<ReadingType> events = data2.getStatesAsserted(rec.getSensorType(),
+									rec.getEventReadingType());
+							String s = "";
+							for (int i = 0; i < events.size(); ++i) {
+								s += events.get(i) + ", ";
+							}
+							data.setValor(s);
+							list.add(data);
+						}
+					}
+				} catch (IPMIException e) {
+					if (e.getCompletionCode() == CompletionCode.DataNotPresent) {
+						list.add(data);
+					} else {
+						throw e;
+					}
+				}
+
+			} catch (IPMIException e) {
+				if (lastReservationId == reservationId)
+					throw e;
+				lastReservationId = reservationId;
+				ReserveSdrRepository commandCoder = new ReserveSdrRepository(IpmiVersion.V20, cs,
+						AuthenticationType.RMCPPlus);
+				reservationId = ((ReserveSdrRepositoryResponseData) sendMessage(commandCoder)).getReservationId();
+			}
+			
+		}
+
 		return list;
+	}
+
+	/**
+	 * Based on Verax Systems template.
+	 * */
+	public SensorRecord getSensorData(IpmiConnector connector, ConnectionHandle handle, int reservationId)
+			throws Exception {
+		try {
+			// BMC capabilities are limited - that means that sometimes the
+			// record size exceeds maximum size of the message. Since we don't
+			// know what is the size of the record, we try to get
+			// whole one first
+			GetSdr commandCoder = new GetSdr(IpmiVersion.V20,
+					handle.getCipherSuite(), AuthenticationType.RMCPPlus, reservationId, nextRecId);
+			GetSdrResponseData data = (GetSdrResponseData) sendMessage(commandCoder);
+			// If getting whole record succeeded we create SensorRecord from
+			// received data...
+			SensorRecord sensorDataToPopulate = SensorRecord.populateSensorRecord(data.getSensorRecordData());
+			// ... and update the ID of the next record
+			nextRecId = data.getNextRecordId();
+			return sensorDataToPopulate;
+		} catch (IPMIException e) {
+			// System.out.println(e.getCompletionCode() + ": " +
+			// e.getMessage());
+			// The following error codes mean that record is too large to be
+			// sent in one chunk. This means we need to split the data in
+			// smaller parts.
+			if (e.getCompletionCode() == CompletionCode.CannotRespond
+					|| e.getCompletionCode() == CompletionCode.UnspecifiedError) {
+				System.out.println("Getting chunks");
+				// First we get the header of the record to find out its size.
+				GetSdrResponseData data = (GetSdrResponseData) connector.sendMessage(handle,
+						new GetSdr(IpmiVersion.V20, handle.getCipherSuite(), AuthenticationType.RMCPPlus, reservationId,
+								nextRecId, 0, INITIAL_CHUNK_SIZE));
+				// The record size is 5th byte of the record. It does not take
+				// into account the size of the header, so we need to add it.
+				int recSize = TypeConverter.byteToInt(data.getSensorRecordData()[4]) + HEADER_SIZE;
+				int read = INITIAL_CHUNK_SIZE;
+
+				byte[] result = new byte[recSize];
+
+				System.arraycopy(data.getSensorRecordData(), 0, result, 0, data.getSensorRecordData().length);
+
+				// We get the rest of the record in chunks (watch out for
+				// exceeding the record size, since this will result in BMC's
+				// error.
+				while (read < recSize) {
+					int bytesToRead = CHUNK_SIZE;
+					if (recSize - read < bytesToRead) {
+						bytesToRead = recSize - read;
+					}
+					GetSdrResponseData part = (GetSdrResponseData) connector.sendMessage(handle,
+							new GetSdr(IpmiVersion.V20, handle.getCipherSuite(), AuthenticationType.RMCPPlus,
+									reservationId, nextRecId, read, bytesToRead));
+
+					System.arraycopy(part.getSensorRecordData(), 0, result, read, bytesToRead);
+
+					System.out.println("Received part");
+
+					read += bytesToRead;
+				}
+
+				// Finally we populate the sensor record with the gathered
+				// data...
+				SensorRecord sensorDataToPopulate = SensorRecord.populateSensorRecord(result);
+				// ... and update the ID of the next record
+				nextRecId = data.getNextRecordId();
+				return sensorDataToPopulate;
+			} else {
+				throw e;
+			}
+		} catch (Exception e) {
+			throw e;
+		}
 	}
 
 }

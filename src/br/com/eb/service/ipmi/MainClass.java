@@ -14,7 +14,7 @@ public class MainClass {
 			impl.encryptConnection();
 			impl.openConnection("ADMIN", "ADMIN", null);
 			ipmiList.addAll(impl.chassisStatus());
-			// ipmiList.addAll(impl.sensorStatus());
+			 ipmiList.addAll(impl.sensorStatus());
 			impl.closeConnection();
 			impl.releaseConnection();
 		} catch (Exception e) {

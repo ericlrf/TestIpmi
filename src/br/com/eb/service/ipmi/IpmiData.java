@@ -3,6 +3,10 @@ package br.com.eb.service.ipmi;
 public class IpmiData {
 	String nome;
 	String valor;
+	
+	public IpmiData() {
+		super();
+	}
 
 	public IpmiData(String nome, String valor) {
 		super();
