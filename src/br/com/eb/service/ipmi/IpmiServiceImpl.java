@@ -36,7 +36,7 @@ import com.veraxsystems.vxipmi.common.TypeConverter;
  */
 public class IpmiServiceImpl implements IpmiService {
 
-	private static final String INITIAL_DEFAULT_TIMEOUT = PropertiesManager.getInstance().getProperty("timeout");
+//	private static final String INITIAL_DEFAULT_TIMEOUT = PropertiesManager.getInstance().getProperty("timeout");
 	private static final int MAX_REPO_RECORD_ID = 65535;
 	private static final int INITIAL_CHUNK_SIZE = 8;
 	private static final int CHUNK_SIZE = 16;
@@ -287,4 +287,10 @@ public class IpmiServiceImpl implements IpmiService {
 		}
 	}
 
+	/***/
+	public List<IpmiData> modulesStatus() throws Exception{
+		List<IpmiData> list = new ArrayList<>();
+		
+		return list;
+	}
 }
