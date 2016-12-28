@@ -9,6 +9,7 @@ package br.com.eb.service.ipmi;
 public class IpmiData {
 	String nome;
 	String valor;
+	String grupo;
 
 	public IpmiData() {
 		super();
@@ -20,6 +21,13 @@ public class IpmiData {
 		this.valor = valor;
 	}
 
+	public IpmiData(String nome, String valor, String grupo) {
+		super();
+		this.nome = nome;
+		this.valor = valor;
+		this.grupo = grupo;
+	}
+
 	public String getNome() {
 		return nome;
 	}
@@ -29,7 +37,7 @@ public class IpmiData {
 	}
 
 	public String getValor() {
-		if (valor == null) {
+		if (valor == null || valor == "") {
 			return "not_present";
 		}
 		return valor;
@@ -37,6 +45,14 @@ public class IpmiData {
 
 	public void setValor(String valor) {
 		this.valor = valor;
+	}
+
+	public String getGrupo() {
+		return grupo;
+	}
+
+	public void setGrupo(String grupo) {
+		this.grupo = grupo;
 	}
 
 }
