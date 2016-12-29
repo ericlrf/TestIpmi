@@ -136,7 +136,7 @@ public class GetFruInfoRunner {
 		ReserveSdrRepositoryResponseData reservation = (ReserveSdrRepositoryResponseData) connector.sendMessage(handle,
 				new ReserveSdrRepository(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus));
 
-		processFru(connector, handle, DEFAULT_FRU_ID);
+//		processFru(connector, handle, DEFAULT_FRU_ID);
 
 		while (nextRecId < MAX_REPO_RECORD_ID) {
 

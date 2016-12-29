@@ -19,11 +19,18 @@ import com.veraxsystems.vxipmi.coding.commands.fru.GetFruInventoryAreaInfo;
 import com.veraxsystems.vxipmi.coding.commands.fru.GetFruInventoryAreaInfoResponseData;
 import com.veraxsystems.vxipmi.coding.commands.fru.ReadFruData;
 import com.veraxsystems.vxipmi.coding.commands.fru.ReadFruDataResponseData;
+import com.veraxsystems.vxipmi.coding.commands.fru.record.BaseCompatibilityInfo;
 import com.veraxsystems.vxipmi.coding.commands.fru.record.BoardInfo;
 import com.veraxsystems.vxipmi.coding.commands.fru.record.ChassisInfo;
+import com.veraxsystems.vxipmi.coding.commands.fru.record.DcLoadInfo;
+import com.veraxsystems.vxipmi.coding.commands.fru.record.DcOutputInfo;
 import com.veraxsystems.vxipmi.coding.commands.fru.record.FruRecord;
+import com.veraxsystems.vxipmi.coding.commands.fru.record.ManagementAccessInfo;
+import com.veraxsystems.vxipmi.coding.commands.fru.record.MultiRecordInfo;
+import com.veraxsystems.vxipmi.coding.commands.fru.record.OemInfo;
 import com.veraxsystems.vxipmi.coding.commands.fru.record.PowerSupplyInfo;
 import com.veraxsystems.vxipmi.coding.commands.fru.record.ProductInfo;
+import com.veraxsystems.vxipmi.coding.commands.fru.record.SpdInfo;
 import com.veraxsystems.vxipmi.coding.commands.sdr.GetSdr;
 import com.veraxsystems.vxipmi.coding.commands.sdr.GetSdrResponseData;
 import com.veraxsystems.vxipmi.coding.commands.sdr.GetSensorReading;
@@ -54,7 +61,7 @@ public class IpmiServiceImpl implements IpmiService {
 	private static final int INITIAL_CHUNK_SIZE = 8;
 	private static final int CHUNK_SIZE = 16;
 	private static final int HEADER_SIZE = 5;
-	private static final int DEFAULT_FRU_ID = 0;
+	// private static final int DEFAULT_FRU_ID = 0;
 	private static final int FRU_READ_PACKET_SIZE = 16;
 	private IpmiConnector connector;
 	private ConnectionHandle handle;
@@ -331,7 +338,7 @@ public class IpmiServiceImpl implements IpmiService {
 
 		ReserveSdrRepository commandCoder = new ReserveSdrRepository(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus);
 		ReserveSdrRepositoryResponseData reservation = (ReserveSdrRepositoryResponseData) sendMessage(commandCoder);
-		processFru(connector, handle, DEFAULT_FRU_ID, list);
+		// processFru(connector, handle, DEFAULT_FRU_ID, list);
 		while (nextRecId < MAX_REPO_RECORD_ID) {
 			try {
 				SensorRecord record = getSensorData(connector, handle, reservation.getReservationId());
@@ -381,7 +388,7 @@ public class IpmiServiceImpl implements IpmiService {
 	 * Recebe informações dos módulos listados no inventário do host remoto.
 	 * Método baseado em template da biblioteca IPMI da VeraxSystems.
 	 */
-	private void processFru(IpmiConnector connector, ConnectionHandle handle, int fruId, List<IpmiData> list)
+	public void processFru(IpmiConnector connector, ConnectionHandle handle, int fruId, List<IpmiData> list)
 			throws Exception {
 		List<ReadFruDataResponseData> fruData = new ArrayList<ReadFruDataResponseData>();
 		IpmiData data = null;
@@ -449,7 +456,7 @@ public class IpmiServiceImpl implements IpmiService {
 				} else if (record instanceof ProductInfo) {
 					String module = record.getClass().getSimpleName();
 					ProductInfo pi = (ProductInfo) record;
-					System.out.println();
+
 					data = new IpmiData(module + " Asset Tag", pi.getAssetTag());
 					list.add(data);
 					data = new IpmiData(module + " Manufacturer Name", pi.getManufacturerName());
@@ -462,19 +469,40 @@ public class IpmiServiceImpl implements IpmiService {
 					list.add(data);
 					data = new IpmiData(module + " Product Version", pi.getProductVersion());
 					list.add(data);
-				} else {
-					// The record could be:
-					// SpdInfo: Stub for future implementation of DIMM SPD
-					// information format.
-					// MultiRecordInfo: BaseCompatibilityInfo, DcLoadInfo,
-					// DcOutputInfo, ManagementAccessInfo, OemInfo,
-					// PowerSupplyInfo.
+				} else if (record instanceof SpdInfo) {
+					SpdInfo spdInfo = (SpdInfo) record;
+				} else if (record instanceof MultiRecordInfo) {
+					MultiRecordInfo multiRecordInfo = (MultiRecordInfo) record;
+				} else if (record instanceof BaseCompatibilityInfo) {
+					BaseCompatibilityInfo baseCompatibilityInfo = (BaseCompatibilityInfo) record;
+				} else if (record instanceof DcLoadInfo) {
+					DcLoadInfo loadInfo = (DcLoadInfo) record;
+				} else if (record instanceof DcOutputInfo) {
+					String module = record.getClass().getSimpleName();
+					DcOutputInfo outputInfo = (DcOutputInfo) record;
+					data = new IpmiData(module + "Nominal Voltage", String.valueOf(outputInfo.getNominalVoltage()));
+				} else if (record instanceof ManagementAccessInfo) {
+					ManagementAccessInfo managementAccessInfo = (ManagementAccessInfo) record;
+				} else if (record instanceof OemInfo) {
+					OemInfo oemInfo = (OemInfo) record;
+				} else if (record instanceof PowerSupplyInfo) {
+					PowerSupplyInfo powerSupplyInfo = (PowerSupplyInfo) record;
 				}
 			}
 
 		} catch (Exception e) {
 			throw e;
 		}
+
+	}
+
+	/**
+	 * Recebe informações do log de eventos do host remoto
+	 */
+	public void eventsStatus() throws Exception {
+		// GetSelInfo
+		// ReserveSel
+		// GetSelEntry
 
 	}
 }

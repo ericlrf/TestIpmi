@@ -9,6 +9,7 @@ package br.com.eb.service.ipmi;
 public class IpmiData {
 	String nome;
 	String valor;
+	String unidade;
 	String grupo;
 
 	public IpmiData() {
@@ -25,6 +26,14 @@ public class IpmiData {
 		super();
 		this.nome = nome;
 		this.valor = valor;
+		this.grupo = grupo;
+	}
+
+	public IpmiData(String nome, String valor, String unidade, String grupo) {
+		super();
+		this.nome = nome;
+		this.valor = valor;
+		this.unidade = unidade;
 		this.grupo = grupo;
 	}
 
@@ -53,6 +62,14 @@ public class IpmiData {
 
 	public void setGrupo(String grupo) {
 		this.grupo = grupo;
+	}
+
+	public String getUnidade() {
+		return unidade;
+	}
+
+	public void setUnidade(String unidade) {
+		this.unidade = unidade;
 	}
 
 }
