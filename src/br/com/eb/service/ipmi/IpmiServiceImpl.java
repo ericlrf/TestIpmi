@@ -378,7 +378,7 @@ public class IpmiServiceImpl implements IpmiService {
 	}
 
 	/**
-	 * Recebe informações dos módulos listados no inventário o host remoto.
+	 * Recebe informações dos módulos listados no inventário do host remoto.
 	 * Método baseado em template da biblioteca IPMI da VeraxSystems.
 	 */
 	private void processFru(IpmiConnector connector, ConnectionHandle handle, int fruId, List<IpmiData> list)
@@ -434,6 +434,7 @@ public class IpmiServiceImpl implements IpmiService {
 					data = new IpmiData(module + " Board Manufacturer", bi.getBoardManufacturer());
 					list.add(data);
 					data = new IpmiData(module + " Mfg Date", localDateTime.toString());
+					list.add(data);
 
 				} else if (record instanceof ChassisInfo) {
 					String module = record.getClass().getSimpleName();
@@ -449,7 +450,7 @@ public class IpmiServiceImpl implements IpmiService {
 					String module = record.getClass().getSimpleName();
 					ProductInfo pi = (ProductInfo) record;
 					System.out.println();
-					data = new IpmiData(module + "Asset Tag", pi.getAssetTag());
+					data = new IpmiData(module + " Asset Tag", pi.getAssetTag());
 					list.add(data);
 					data = new IpmiData(module + " Manufacturer Name", pi.getManufacturerName());
 					list.add(data);
@@ -467,7 +468,7 @@ public class IpmiServiceImpl implements IpmiService {
 					// information format.
 					// MultiRecordInfo: BaseCompatibilityInfo, DcLoadInfo,
 					// DcOutputInfo, ManagementAccessInfo, OemInfo,
-					// PowerSupplyInfo
+					// PowerSupplyInfo.
 				}
 			}
 
