@@ -11,7 +11,7 @@ public class MainClass {
 		List<IpmiData> ipmiList = new ArrayList<>();
 
 		try {
-			impl.createConnection(6000, "10.0.1.245");
+			impl.createConnection(0, "10.0.1.245");
 			impl.encryptConnection();
 			impl.openConnection("ADMIN", "ADMIN", null);
 			ipmiList.addAll(impl.chassisStatus());
@@ -24,7 +24,7 @@ public class MainClass {
 		}
 		IpmiServiceImpl impl2 = new IpmiServiceImpl(2750);
 		try {
-			impl2.createConnection(6000, "10.0.1.245");
+			impl2.createConnection(0, "10.0.1.245");
 			impl2.encryptConnection();
 			impl2.openConnection("ADMIN", "ADMIN", null);
 			ipmiList.addAll(impl2.sensorStatus());
