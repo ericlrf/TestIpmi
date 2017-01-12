@@ -131,6 +131,10 @@ public class IpmiServiceImpl implements IpmiService {
 	public List<IpmiData> chassisStatus() throws Exception {
 		GetChassisStatus commandCoder = new GetChassisStatus(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus);
 		GetChassisStatusResponseData rd = (GetChassisStatusResponseData) sendMessage(commandCoder);
+		
+		System.err.println(commandCoder.getCommandCode());
+		System.err.println(commandCoder.getNetworkFunction());
+		
 		List<IpmiData> list = new ArrayList<>();
 		IpmiData data;
 		data = new IpmiData("Current Power State", String.valueOf(rd.getCurrentPowerState()));
@@ -210,6 +214,8 @@ public class IpmiServiceImpl implements IpmiService {
 					if (recordReadingId >= 0) {
 						GetSensorReading commandCoder = new GetSensorReading(IpmiVersion.V20, cs,
 								AuthenticationType.RMCPPlus, recordReadingId);
+						System.err.println(commandCoder.getCommandCode());
+						System.err.println(commandCoder.getNetworkFunction());
 						data2 = (GetSensorReadingResponseData) sendMessage(commandCoder);
 						if (record instanceof FullSensorRecord) {
 							FullSensorRecord rec = (FullSensorRecord) record;
@@ -241,6 +247,8 @@ public class IpmiServiceImpl implements IpmiService {
 				lastReservationId = reservationId;
 				ReserveSdrRepository commandCoder = new ReserveSdrRepository(IpmiVersion.V20, cs,
 						AuthenticationType.RMCPPlus);
+				System.err.println(commandCoder.getCommandCode());
+				System.err.println(commandCoder.getNetworkFunction());
 				reservationId = ((ReserveSdrRepositoryResponseData) sendMessage(commandCoder)).getReservationId();
 			}
 
@@ -266,6 +274,8 @@ public class IpmiServiceImpl implements IpmiService {
 			// whole one first
 			GetSdr commandCoder = new GetSdr(IpmiVersion.V20, handle.getCipherSuite(), AuthenticationType.RMCPPlus,
 					reservationId, nextRecId);
+			System.err.println(commandCoder.getCommandCode());
+			System.err.println(commandCoder.getNetworkFunction());
 			GetSdrResponseData data = (GetSdrResponseData) sendMessage(commandCoder);
 			// If getting whole record succeeded we create SensorRecord from
 			// received data...
@@ -285,6 +295,8 @@ public class IpmiServiceImpl implements IpmiService {
 				// First we get the header of the record to find out its size.
 				GetSdr commandCoder = new GetSdr(IpmiVersion.V20, handle.getCipherSuite(), AuthenticationType.RMCPPlus,
 						reservationId, nextRecId, 0, INITIAL_CHUNK_SIZE);
+				System.err.println(commandCoder.getCommandCode());
+				System.err.println(commandCoder.getNetworkFunction());
 				GetSdrResponseData data = (GetSdrResponseData) connector.sendMessage(handle, commandCoder);
 				// The record size is 5th byte of the record. It does not take
 				// into account the size of the header, so we need to add it.
@@ -337,6 +349,9 @@ public class IpmiServiceImpl implements IpmiService {
 		nextRecId = 0;
 
 		ReserveSdrRepository commandCoder = new ReserveSdrRepository(IpmiVersion.V20, cs, AuthenticationType.RMCPPlus);
+		System.err.println(commandCoder.getCommandCode());
+		System.err.println(commandCoder.getNetworkFunction());
+		
 		ReserveSdrRepositoryResponseData reservation = (ReserveSdrRepositoryResponseData) sendMessage(commandCoder);
 		// processFru(connector, handle, DEFAULT_FRU_ID, list);
 		while (nextRecId < MAX_REPO_RECORD_ID) {
@@ -373,6 +388,8 @@ public class IpmiServiceImpl implements IpmiService {
 			} catch (Exception e) {
 				ReserveSdrRepository commandCoder2 = new ReserveSdrRepository(IpmiVersion.V20, cs,
 						AuthenticationType.RMCPPlus);
+				System.err.println(commandCoder2.getCommandCode());
+				System.err.println(commandCoder2.getNetworkFunction());
 				reservation = (ReserveSdrRepositoryResponseData) sendMessage(commandCoder2);
 				throw e;
 			}
@@ -396,6 +413,8 @@ public class IpmiServiceImpl implements IpmiService {
 		// get the FRU Inventory Area info
 		GetFruInventoryAreaInfo commandCoder = new GetFruInventoryAreaInfo(IpmiVersion.V20, handle.getCipherSuite(),
 				AuthenticationType.RMCPPlus, fruId);
+		System.err.println(commandCoder.getCommandCode());
+		System.err.println(commandCoder.getNetworkFunction());
 		GetFruInventoryAreaInfoResponseData info = (GetFruInventoryAreaInfoResponseData) sendMessage(commandCoder);
 
 		int size = info.getFruInventoryAreaSize();
@@ -412,6 +431,8 @@ public class IpmiServiceImpl implements IpmiService {
 				// get single package od FRU data
 				ReadFruData commandCoder2 = new ReadFruData(IpmiVersion.V20, handle.getCipherSuite(),
 						AuthenticationType.RMCPPlus, fruId, unit, i, cnt);
+				System.err.println(commandCoder2.getCommandCode());
+				System.err.println(commandCoder2.getNetworkFunction());
 				ReadFruDataResponseData data2 = (ReadFruDataResponseData) connector.sendMessage(handle, commandCoder2);
 
 				fruData.add(data2);
