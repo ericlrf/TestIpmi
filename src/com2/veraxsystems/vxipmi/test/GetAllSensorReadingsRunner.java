@@ -140,22 +140,22 @@ public class GetAllSensorReadingsRunner {
                             // from sensor record. See
                             // FullSensorRecord#calcFormula for details.
                             System.out.println("-----------------------");
-//                            System.out.println(data2.getPlainSensorReading());
-//                            System.out.println(data2.isSensorStateValid());
-//                            System.out.println(data2.getSensorState().toString());
-//                            System.out.println(data2.getSensorReading(rec));
-//                            System.out.println(rec.getRateUnit() != RateUnit.None ? " per " + rec.getRateUnit() : "");
-//                            System.out.println(rec.getAccuracy());
-//                            System.out.println(rec.getId());
-//                            System.out.println(rec.getEventReadingType());
-//                            System.out.println(rec.getName());
-//                            System.out.println(rec.getNominalReading());
-//                            System.out.println(rec.getNormalMaximum());
-//                            System.out.println(rec.getNormalMinimum());
-//                            System.out.println(rec.getSensorMaximumReading());
-//                            System.out.println(rec.getSensorMinmumReading());
-//                            System.out.println(rec.getSensorResolution());
-//                            System.out.println(rec.getTolerance());
+                            System.out.println(data2.getPlainSensorReading());
+                            System.out.println(data2.isSensorStateValid());
+                            System.out.println(data2.getSensorState().toString());
+                            System.out.println(data2.getSensorReading(rec));
+                            System.out.println(rec.getRateUnit() != RateUnit.None ? " per " + rec.getRateUnit() : "");
+                            System.out.println(rec.getAccuracy());
+                            System.out.println(rec.getId());
+                            System.out.println(rec.getEventReadingType());
+                            System.out.println(rec.getName());
+                            System.out.println(rec.getNominalReading());
+                            System.out.println(rec.getNormalMaximum());
+                            System.out.println(rec.getNormalMinimum());
+                            System.out.println(rec.getSensorMaximumReading());
+                            System.out.println(rec.getSensorMinmumReading());
+                            System.out.println(rec.getSensorResolution());
+                            System.out.println(rec.getTolerance());
 //                            System.out.println(rec.);
                             System.out.println(rec.getLowerNonRecoverableThreshold());
                             System.out.println(rec.getLowerCriticalThreshold());

@@ -149,6 +149,18 @@ public class IpmiServiceImpl implements IpmiService {
 		list.add(data);
 		data = new IpmiData("is Power On", String.valueOf(rd.isPowerOn()));
 		list.add(data);
+		data = new IpmiData("getChassisIdentifyState", String.valueOf(rd.getChassisIdentifyState()));
+		list.add(data);
+		data = new IpmiData("getPowerRestorePolicy", String.valueOf(rd.getPowerRestorePolicy()));
+		list.add(data);
+		data = new IpmiData("getCurrentPowerState", String.valueOf(rd.getCurrentPowerState()));
+		list.add(data);
+		data = new IpmiData("getFrontPanelButtonCapabilities", String.valueOf(rd.getFrontPanelButtonCapabilities()));
+		list.add(data);
+		data = new IpmiData("getLastPowerEvent", String.valueOf(rd.getLastPowerEvent()));
+		list.add(data);
+		data = new IpmiData("getMiscChassisState", String.valueOf(rd.getMiscChassisState()));
+		list.add(data);
 		data = new IpmiData("Last Power Event", String.valueOf(rd.getLastPowerEvent()));
 		list.add(data);
 		data = new IpmiData("was Ipmi Power On", String.valueOf(rd.wasIpmiPowerOn()));

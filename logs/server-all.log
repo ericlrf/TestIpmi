@@ -1,9 +1,6 @@
-2017-01-12 17:08:13.715 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting pingPeriod: 30000
-2017-01-12 17:08:13.722 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting retries: 3
-2017-01-12 17:08:13.723 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting retries: 3
-2017-01-12 17:08:13.723 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting idleTime: 4000
-2017-01-12 17:08:13.747 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting timeout: 10000
-2017-01-12 17:08:14.593 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting retries: 3
-2017-01-12 17:08:14.593 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting retries: 3
-2017-01-12 17:08:14.593 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting idleTime: 4000
-2017-01-12 17:08:14.594 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting timeout: 2750
+2017-01-13 17:53:39.276 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting timeout: 10000
+2017-01-13 17:53:39.295 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting pingPeriod: 30000
+2017-01-13 17:53:39.296 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting retries: 3
+2017-01-13 17:53:39.297 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting retries: 3
+2017-01-13 17:53:39.297 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting idleTime: 4000
+2017-01-13 17:53:39.312 INFO  [com.veraxsystems.vxipmi.common.PropertiesManager] Getting timeout: 2500
