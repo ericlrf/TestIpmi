@@ -57,17 +57,17 @@ import com.veraxsystems.vxipmi.common.TypeConverter;
  */
 public class IpmiServiceImpl implements IpmiService {
 
-	private static final int MAX_REPO_RECORD_ID = 65535;
-	private static final int INITIAL_CHUNK_SIZE = 8;
-	private static final int CHUNK_SIZE = 16;
-	private static final int HEADER_SIZE = 5;
+	protected static final int MAX_REPO_RECORD_ID = 65535;
+	protected static final int INITIAL_CHUNK_SIZE = 8;
+	protected static final int CHUNK_SIZE = 16;
+	protected static final int HEADER_SIZE = 5;
 	// private static final int DEFAULT_FRU_ID = 0;
-	private static final int FRU_READ_PACKET_SIZE = 16;
-	private IpmiConnector connector;
-	private ConnectionHandle handle;
-	private List<CipherSuite> cipherSuites;
-	private CipherSuite cs;
-	private int nextRecId;
+	protected static final int FRU_READ_PACKET_SIZE = 16;
+	protected IpmiConnector connector;
+	protected ConnectionHandle handle;
+	protected List<CipherSuite> cipherSuites;
+	protected CipherSuite cs;
+	protected int nextRecId;
 
 	public IpmiServiceImpl() {
 		super();

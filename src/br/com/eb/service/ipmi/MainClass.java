@@ -14,8 +14,8 @@ public class MainClass {
 			impl.createConnection(0, "10.0.1.245");
 			impl.encryptConnection();
 			impl.openConnection("ADMIN", "ADMIN", null);
-			ipmiList.addAll(impl.chassisStatus());
-//			ipmiList.addAll(impl.modulesStatus());
+//			ipmiList.addAll(impl.chassisStatus());
+			ipmiList.addAll(impl.modulesStatus());
 //			System.out.println(impl.getDefaultTimeout());;
 			impl.closeConnection();
 			impl.releaseConnection();
